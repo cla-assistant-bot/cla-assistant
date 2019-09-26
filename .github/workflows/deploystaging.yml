@@ -27,5 +27,32 @@ jobs:
       uses: actions/setup-node@v1
       with:
         version:  ${{ matrix.node_version }}
-    - name: test action
-      run: echo hello world
+    - name: Bower Install
+      run: bower install
+    - name: Npm Install
+      run: npm install
+    - name: grunt build and test
+      run: |
+        grunt build
+        grunt test
+        grunt coverage
+    - name: Test Coverage
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        path-to-lcov: ./output/coverage/lcov.info
+   - name: build and publish to dockerhub
+     uses: elgohr/Publish-Docker-Github-Action@master
+     with:
+       name: sapclaassistant/claassistant
+       username: ${{ secrets.DOCKER_USERNAME }}
+       password: ${{ secrets.DOCKER_PASSWORD }}
+       snapshot: true
+   - name: build and publish to gcp 
+     uses: elgohr/Publish-Docker-Github-Action@master
+     with:
+       name: eu.gcr.io/sap-cla-assistant/cla-assistant
+       username: _json_key
+       password: ${{ secrets.GCP_PASSWORD }}
+       registry: eu.gcr.io
+       snapshot: true
